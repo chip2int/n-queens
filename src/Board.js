@@ -161,7 +161,6 @@
 
       var diag = initDiag;
       while (diag < diagVal) {
-        console.log(diag);
         if (this.hasMajorDiagonalConflictAt(diag)) {
           return true;
         }
@@ -195,7 +194,6 @@
       var maxDiag = 2 * (this.rows().length - 1);
       var diag = 0;
       while (diag <= maxDiag) {
-        console.log(diag);
         if (this.hasMinorDiagonalConflictAt(diag)) {
           return true;
         }
