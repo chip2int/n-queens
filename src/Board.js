@@ -137,26 +137,70 @@
     // 
     // test if a specific major diagonal on this board contains a conflict
     hasMajorDiagonalConflictAt: function(majorDiagonalColumnIndexAtFirstRow){
+      
+      var count = 0;
+      for (var i = 0; i < this.rows().length; i++) {
+        for (var j = 0; j < this.get(i).length; j++) {
+          if (this._getFirstRowColumnIndexForMajorDiagonalOn(i,j) === majorDiagonalColumnIndexAtFirstRow) {
+            if (this.get(i)[j]) {
+              count++;
+            }
+          }
+          if (count > 1) return true;
+        }
+      }
+      
       return false; // fixme
+
     },
 
     // test if any major diagonals on this board contain conflicts
     hasAnyMajorDiagonalConflicts: function(){
-      return false; // fixme
+      var diagVal = this.rows().length-1;
+      var initDiag = diagVal * -1;
+
+      var diag = initDiag;
+      while (diag < diagVal) {
+        console.log(diag);
+        if (this.hasMajorDiagonalConflictAt(diag)) {
+          return true;
+        }
+        diag++;
+      }
+      
+      return false;
     },
-
-
-
     // Minor Diagonals - go from top-right to bottom-left
     // --------------------------------------------------------------
     // 
     // test if a specific minor diagonal on this board contains a conflict
     hasMinorDiagonalConflictAt: function(minorDiagonalColumnIndexAtFirstRow){
+      var count = 0;
+      for (var i = 0; i < this.rows().length; i++) {
+        for (var j = 0; j < this.get(i).length; j++) {
+          if (this._getFirstRowColumnIndexForMinorDiagonalOn(i,j) === minorDiagonalColumnIndexAtFirstRow) {
+            if (this.get(i)[j]) {
+              // debugger;
+              count++;
+            }
+          }
+          if (count > 1) return true;
+        }
+      }
       return false; // fixme
     },
 
     // test if any minor diagonals on this board contain conflicts
     hasAnyMinorDiagonalConflicts: function(){
+      var maxDiag = 2 * (this.rows().length - 1);
+      var diag = 0;
+      while (diag <= maxDiag) {
+        console.log(diag);
+        if (this.hasMinorDiagonalConflictAt(diag)) {
+          return true;
+        }
+        diag++;
+      }
       return false; // fixme
     }
 
