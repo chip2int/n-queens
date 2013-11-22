@@ -155,37 +155,32 @@ window.findNQueensSolution = function(n){
         }
       }
 
-
-
-      if (qCount !== qExpected) {
-       retValue = 0;
-
-       if (placed) {
-         solution[rowArr[0]][colArr[0]]=0;
-         qCount--;
-         diagToggler(true, majDiagVal, minDiagVal);
-       }
-      }
-      else {
-        var solutionCopy = solution.slice(0);
-        for (var ii = 0; ii < solutionCopy.length; ii++){
-          solutionCopy[ii] = solution[ii].slice(0);
-        }
-        for (var iii = 0; iii < solutionCopy.length; iii++) {
-         for (var jjj = 0; jjj < solutionCopy.length; jjj++){
-          if (solutionCopy[iii][jjj] < 0){
-           solutionCopy[iii][jjj] = 0;
+      if (placed) {
+        if (qCount == qExpected) {
+          var solutionCopy = solution.slice(0);
+          for (var ii = 0; ii < solutionCopy.length; ii++){
+            solutionCopy[ii] = solution[ii].slice(0);
           }
-         }
+          for (var iii = 0; iii < solutionCopy.length; iii++) {
+           for (var jjj = 0; jjj < solutionCopy.length; jjj++){
+            if (solutionCopy[iii][jjj] < 0){
+              solutionCopy[iii][jjj] = 0;
+            }
+           }
+          }
+          solutionArray.push(solutionCopy);
+          retValue = 1;
+          solution[rowArr[0]][colArr[0]]=0;
+          qCount--;
+          diagToggler(true, majDiagVal, minDiagVal);
         }
-        //console.log(solutionCopy)
-        solutionArray.push(solutionCopy);
-        
-        //solution[rowVal][colVal] = 0
-        retValue = 1;
+        else {
+          solution[rowArr[0]][colArr[0]]=0;
+          qCount--;
+          diagToggler(true, majDiagVal, minDiagVal);
+          retValue = 0;
+        }
       }
-
-      
       return retValue;
     }
 
