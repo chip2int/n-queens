@@ -69,9 +69,11 @@ window.countNRooksSolutions = function(n){
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n){
+   var solutionArray = [];
    var solution = []; //fixme
    var rowArr = [];
    var colArr = [];
+   var qExpected = 1;
 
    for (var row = 0; row < n; row++) {
     var colArrForRow = Array(n);
@@ -85,17 +87,106 @@ window.findNQueensSolution = function(n){
    for (var i = 0; i < n; i++) {
     rowArr[i] = colArr[i] = i;
    }
-  // debugger;
 
-   var placeQueens = function(rowArrOrig, colArrOrig) {
-    var rowArr = rowArrOrig;
-    var colArr = colArrOrig;
-    
-    if (rowArr.length === 1 && colArr.length === 1) {
-      if (solution[rowArr[0]][colArr[0]] !== -1){
-        solution[rowArr[0]][colArr[0]]=1;
+   if (n > 1) {
+     qExpected = (n>=4)?n:(n-1);
+   }
+
+   var diagToggler = function (isRevert, majDVal, minDVal) {
+
+      var majValue = (isRevert)?2:-2;
+      var minValue = (isRevert)?1:-1;
+      var checkCond = (isRevert)?0:1;
+      var tot = majValue + minValue;
+
+      for (var i = 0; i < solution.length; i++) {
+        for (var j = 0; j <solution.length; j++) {
+          // Checking for major diagonal
+
+          if ((j - i) === majDVal && solution[i][j] !== checkCond) {
+            solution[i][j] += majValue;
+            if (!isRevert) {
+              if(solution[i][j] < tot) {
+                solution[i][j] -= majValue;
+              }
+            }
+            else {
+               if(solution[i][j] > tot) {
+                solution[i][j] -= majValue;
+              }
+            }
+          } 
+          else if ((j + i) === minDVal && solution[i][j] !== checkCond) {
+            solution[i][j] += minValue;
+            if (!isRevert) {
+              if(solution[i][j] < tot) {
+                solution[i][j] -= minValue;
+              }
+            }
+            else {
+               if(solution[i][j] > tot) {
+                solution[i][j] -= minValue;
+              }
+            }
+
+          }
+        }
       }
-      return;
+   };
+
+  var placeQueens = function(rowArrOrig, colArrOrig, qCount) {
+    var rowArr = rowArrOrig.slice(0);
+    var colArr = colArrOrig.slice(0);
+    var retValue = 0;
+    var placed = false;
+
+    if (rowArr.length === 1 && colArr.length === 1) {
+      var majDiagVal = colArr[0] - rowArr[0];
+      var minDiagVal = colArr[0] + rowArr[0];
+
+      if (solution[rowArr[0]][colArr[0]] === 0){
+        solution[rowArr[0]][colArr[0]]=1;
+        diagToggler(false, majDiagVal, minDiagVal);
+
+        qCount++;
+        placed = true;
+        if (n === 1) {
+          solutionArray.push(solution);
+        }
+      }
+
+
+
+      if (qCount !== qExpected) {
+       retValue = 0;
+
+       if (placed) {
+         solution[rowArr[0]][colArr[0]]=0;
+         qCount--;
+         diagToggler(true, majDiagVal, minDiagVal);
+       }
+      }
+      else {
+        var solutionCopy = solution.slice(0);
+        for (var ii = 0; ii < solutionCopy.length; ii++){
+          solutionCopy[ii] = solution[ii].slice(0);
+        }
+        for (var iii = 0; iii < solutionCopy.length; iii++) {
+         for (var jjj = 0; jjj < solutionCopy.length; jjj++){
+          if (solutionCopy[iii][jjj] < 0){
+           solutionCopy[iii][jjj] = 0;
+          }
+         }
+        }
+        //console.log(solutionCopy)
+        solutionArray.push(solutionCopy);
+        
+        //solution[rowVal][colVal] = 0
+        retValue = 1;
+      }
+
+      
+      return retValue;
     }
 
     // Construct a pair
@@ -104,8 +195,9 @@ window.findNQueensSolution = function(n){
     var rowIdx;
     var colIdx;
     var idx;
-    var randomRowVal;
-    var randomColVal;
+    var rowVal;
+    var colVal;
+    var queenCount = qCount;
 
     for (var i = 0; i < rowArr.length; i++) {
       for (var j = 0; j < colArr.length; j++) {
@@ -113,67 +205,131 @@ window.findNQueensSolution = function(n){
       }
     }
 
-    while (true) {
+    var len = rowColArr.length;
+    for (var k = 0; k < len ; k++) {
+      rowIdx = rowColArr[k][0];
+      colIdx = rowColArr[k][1];
+      rowVal = rowArr[rowIdx];
+      colVal = colArr[colIdx];
 
-      if (rowColArr.length === 0) break;
-      idx = (Math.floor(Math.random()* 10) %rowColArr.length);
+      if (solution[rowVal][colVal] < 0) {
+        rowColArr.splice(k,1);
+        k--;
+        len--;
+      }
+    }
 
-      rowIdx = rowColArr[idx][0];
-      colIdx = rowColArr[idx][1];
+    if (rowColArr.length === 0) return;
 
-      randomRowVal = rowArr[rowIdx];
-      randomColVal = colArr[colIdx];
+    var foundSolution = 0;
+    var solValue = 0;
+
+    rowArr = rowArrOrig.slice(0);
+    colArr = colArrOrig.slice(0);
+    var rowArrCopy = [];
+    var colArrCopy = [];
+
+    len = rowColArr.length;
+    for (var i = 0; i < len; i++) {
+    rowArr = rowArrOrig.slice(0);
+    colArr = colArrOrig.slice(0);
+/*
+      if (rowArrCopy.length > 0) {
+        rowArr = rowArrCopy;
+      }
+      
+      if (colArrCopy.length > 0) {
+        colArr = colArrCopy;
+      }
+*/
+      rowIdx = rowColArr[i][0];
+      colIdx = rowColArr[i][1];
+
+      rowVal = rowArr[rowIdx];
+      if (rowVal === undefined) {
+        rowColArr.splice(i,1);
+        len--;
+        i--;
+        continue;
+      }
+
+      colVal = colArr[colIdx];
+      if (colVal === undefined) {
+        rowColArr.splice(i,1);
+        len --;
+        i--;
+        continue;
+      }
+
+      if (solution[rowVal][colVal] !== 0) {
+        continue;
+      }  
+      solution[rowVal][colVal] = 1;
+      queenCount++;
+
+      var solutionCopy;
+
+      if (queenCount == qExpected) {
+        // Make a new copy of the solution
+        solutionCopy = solution.slice(0);
+        for (var ii = 0; ii < solutionCopy.length; ii++){
+          solutionCopy[ii] = solution[ii].slice(0);
+        }
+        for (var iii = 0; iii < solutionCopy.length; iii++) {
+         for (var jjj = 0; jjj < solutionCopy.length; jjj++){
+          if (solutionCopy[iii][jjj] < 0){
+           solutionCopy[iii][jjj] = 0;
+          }
+         }
+        }
+        //console.log(solutionCopy)
+        solutionArray.push(solutionCopy);
+        //solution[rowVal][colVal] = 0;
+        //queenCount--;
+        // and push it into a solution array
+        foundSolution = 1;
+        continue;
+      }
+
+      rowArr.splice(rowIdx, 1);
+      colArr.splice(colIdx, 1);
+      majDiagVal = colVal - rowVal;
+      minDiagVal = colVal + rowVal;
     
-      if (solution[randomRowVal][randomColVal] === -1) {
-        rowColArr.splice(idx,1);
-      }
-      else {
-        break;
-      }
-    }
-     
-    //if (solution[randomRowVal][randomColVal] === -1){
-      //rowIdx = (Math.floor(Math.random()* 10) %rowArr.length);
-      //colIdx = (Math.floor(Math.random()* 10) %colArr.length);
-    //} 
-    //else {
-      if (rowColArr.length === 0) return;
-      solution[randomRowVal][randomColVal] = 1;
-    //}
-
-    rowArr.splice(rowIdx, 1);
-    colArr.splice(colIdx, 1);
-    var majDiagVal = randomColVal - randomRowVal;
-    var minDiagVal = randomColVal + randomRowVal;
-
-    for (var i = 0; i < solution.length; i++) {
-      for (var j = 0; j <solution.length; j++) {
-        // Checking for major diagonal
-        if ((j - i) === majDiagVal && solution[i][j] !== 1) {
-          solution[i][j] = -1;
-        }
-        if ((j + i) === minDiagVal && solution[i][j] !== 1) {
-          solution[i][j] = -1;
-        }
+      diagToggler(false, majDiagVal, minDiagVal);
+      //rowArrCopy = rowArr.slice(0);
+      //colArrCopy = colArr.slice(0);
+           
+      solValue = placeQueens(rowArr, colArr, queenCount);
+      foundSolution = foundSolution || solValue;
+  
+      if (!solValue) {
+        diagToggler(true, majDiagVal, minDiagVal);
+        solution[rowVal][colVal] = 0;
+        queenCount--;
       }
     }
-
-    placeQueens(rowArr, colArr);
+    console.log("RowVal ==>", rowVal);
+    console.log("ColVal ==>", colVal);
+    console.log("rowArr ==>", rowArr);
+    console.log("colArr ==  >", colArr);
+    
+   return foundSolution;
   };
-   
-  placeQueens(rowArr, colArr);
-  
-  for (var i = 0; i < solution.length; i++) {
-    for (var j = 0; j < solution.length; j++){
-      if (solution[i][j] === -1){
-        solution[i][j] = 0;
-      }
-    }
-  }
-  
-  console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution));
 
-  return solution;
+  placeQueens(rowArr, colArr, 0);
+
+  // for (var i = 0; i < solution.length; i++) {
+  //   for (var j = 0; j < solution.length; j++){
+  //     if (solution[i][j] === -1){
+  //       solution[i][j] = 0;
+  //     }
+  //   }
+  // }
+
+  console.log('Single solution for ' + n + ' queens:', JSON.stringify(solutionArray[0]));
+
+  return solutionArray[0];
 };
 
 
@@ -181,6 +337,7 @@ window.findNQueensSolution = function(n){
 window.countNQueensSolutions = function(n){
   var solutionCount = undefined; //fixme
 
+
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   return solutionCount;
-};
+}
